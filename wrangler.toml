@@ -15,7 +15,7 @@ directory = "./public"
 [[d1_databases]]
 binding = "DB"
 database_name = "mea-keijiban-db"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "f0691bdf-5133-45b6-af4c-ba99c2ba18b5"
 migrations_dir = "migrations"
 
 # 公開してよい設定値（秘密情報は入れないこと）。
