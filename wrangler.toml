@@ -1,0 +1,30 @@
+# みんなの紹介コード掲示板（mea-keijiban）
+# 構成: Workers Static Assets（public/）＋ Worker スクリプト（SSR/API）＋ D1
+# 完全無料の範囲のみ（Workers Free / D1 Free / Turnstile Free）。R2 は使わない。
+name = "mea-keijiban"
+main = "src/index.ts"
+compatibility_date = "2025-06-01"
+workers_dev = true
+
+# 静的アセット（CSS・JS）。一致するパスは Worker を起動せず配信される（無料・無制限）。
+[assets]
+directory = "./public"
+
+# D1 バインディング。database_id はデプロイ時に作成した DB の実 ID へ差し替えること。
+# ローカル開発（wrangler dev / --local）ではこの ID は使われず、ローカル D1 が自動で使われる。
+[[d1_databases]]
+binding = "DB"
+database_name = "mea-keijiban-db"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
+
+# 公開してよい設定値（秘密情報は入れないこと）。
+# TURNSTILE_SITE_KEY: Turnstile ウィジェットのサイトキー。空なら Turnstile は無効（フォームに表示しない）。
+# GA_MEASUREMENT_ID: GA4 測定 ID（ブログと同一プロパティ。ユーザー提供待ち）。空なら GA スクリプトを出力しない。
+[vars]
+TURNSTILE_SITE_KEY = ""
+GA_MEASUREMENT_ID = ""
+
+# 秘密情報（wrangler secret put / ローカルは .dev.vars で設定。ここには書かない）:
+#   TURNSTILE_SECRET_KEY  Turnstile のシークレットキー。未設定ならサーバー側検証をスキップする（ローカル開発用）。
+#   IP_HASH_SALT          IP ハッシュ用ソルト（任意）。

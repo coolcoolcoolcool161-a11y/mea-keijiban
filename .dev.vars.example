@@ -1,0 +1,4 @@
+# ローカル開発用の秘密情報サンプル。コピーして .dev.vars を作り、値を入れる（.dev.vars は Git 管理外）。
+# Turnstile をローカルで有効化する場合のみ設定する。未設定のままなら検証はスキップされる。
+TURNSTILE_SECRET_KEY=
+IP_HASH_SALT=
