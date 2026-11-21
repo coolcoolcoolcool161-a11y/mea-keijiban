@@ -1,0 +1,91 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BoardApp from '../components/BoardApp.astro';
+import { SERVICES } from '../data/services';
+import { SITE } from '../data/site';
+
+const base = '/mea-keijiban';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.name,
+  alternateName: SITE.brand,
+  url: SITE.siteUrl + '/',
+  description: SITE.description,
+  inLanguage: 'ja',
+};
+---
+
+<BaseLayout
+  title={`${SITE.name}｜${SITE.brand}`}
+  canonicalPath="/"
+  jsonLd={jsonLd}
+>
+  <div class="wrap">
+    <section class="hero">
+      <h1>{SITE.name} 💌</h1>
+      <img src="https://coolcoolcoolcool161-a11y.github.io/mea-poikatsu-blog/images/hero.jpg" alt="メアのポイ活メディアのイメージ" width="960" height="540" />
+      <p class="lead">
+        ポイ活の紹介コード・招待コードを、みんなで投稿し合える掲示板だよ♪
+        使いたいコードを探すのも、自分のコードを載せるのもOK。対応は14サービス、投稿はすぐに公開されます。
+      </p>
+    </section>
+
+    <div class="pr-box">
+      ※このページはPRを含みます。運営者（メア）の紹介コード・リンク経由で登録し条件を満たすと、メアに紹介報酬が支払われる場合があります。あなたの特典が減ることはありません。くわしくは<a href={`${base}/ad-disclosure/`}>広告・紹介報酬に関する表記</a>を見てね。
+    </div>
+
+    <section>
+      <h2>この掲示板の使い方 ✨</h2>
+      <ol class="steps">
+        <li><strong>コードを探す</strong>：下のサービス一覧や投稿一覧から、使いたいサービスの紹介コードを見つけてコピー。</li>
+        <li><strong>サービスに登録する</strong>：各サービスの紹介ページに、特典とコードの入力方法をまとめています。</li>
+        <li><strong>自分のコードも載せられる</strong>：登録できたら、投稿フォームから自分の紹介コードも投稿してみてね。</li>
+      </ol>
+      <p class="section-note">投稿できるのは、この掲示板で紹介している14サービスの紹介コードだけです。URLや個人情報は投稿できません（自動でブロックされます）。</p>
+    </section>
+
+    <section>
+      <h2>対応サービス（14件）🎀</h2>
+      <div class="card-grid">
+        {SERVICES.map((s) => (
+          <article class="service-card">
+            <h3><a href={`${base}/service/${s.slug}/`}>{s.name}の紹介コード掲示板</a></h3>
+            <p class="benefit">特典：{s.benefit}</p>
+            <p class="desc">{s.blurb}</p>
+            <div class="code-row">
+              <code>{s.operatorCode}</code>
+              <button class="copy-btn" type="button" data-copy={s.operatorCode}>
+                <span class="copy-label">コピー</span>
+              </button>
+            </div>
+            <div class="card-links">
+              <a href={`${base}/service/${s.slug}/`}>掲示板・くわしい紹介 →</a>
+              <a href={`${SITE.blogBaseUrl}/articles/${s.blogSlug}/`} target="_blank" rel="noopener">ブログで見る →</a>
+              {s.operatorUrl && (
+                <a class="register-btn" href={s.operatorUrl} target="_blank" rel="noopener sponsored">登録はこちら</a>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+      <p class="section-note">上のコードは運営者（メア）の紹介コードです。無言利用OK♪ みんなのコードは下の投稿一覧から探してね。</p>
+    </section>
+
+    <BoardApp />
+
+    <section class="panel">
+      <h2>掲示板のお約束 📝</h2>
+      <ul class="rule-list">
+        <li>投稿できるのは、この掲示板で紹介している14サービスの紹介コードだけです。</li>
+        <li>URLの投稿は禁止です（URLスパム防止のため）。紹介コードだけを載せてください。</li>
+        <li>メールアドレス・電話番号などの個人情報は絶対に載せないでください。</li>
+        <li>同じコードは、投稿から10分間は再投稿できません。</li>
+        <li>ルールに反する投稿は、運営の判断で予告なく非表示・削除することがあります。</li>
+      </ul>
+      <p><a href={`${base}/rules/`}>ルール・FAQの全文はこちら →</a></p>
+    </section>
+
+    <p class="article-meta">最終更新日：{SITE.dateModified}</p>
+  </div>
+</BaseLayout>

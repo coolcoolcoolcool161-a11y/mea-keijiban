@@ -1,0 +1,118 @@
+---
+import '../styles/global.css';
+import { SITE } from '../data/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  canonicalPath?: string;
+  ogImage?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = SITE.description,
+  canonicalPath = '/',
+  // 画像はバイナリのためコネクタ経由でpushできない。ポイ活ブログ側の公開画像を参照する。
+  ogImage = 'https://coolcoolcoolcool161-a11y.github.io/mea-poikatsu-blog/images/hero.jpg',
+  jsonLd,
+  noindex = false,
+} = Astro.props;
+const canonical = SITE.siteUrl + canonicalPath;
+const ogImageUrl = ogImage.startsWith('http') ? ogImage : SITE.siteUrl + ogImage;
+const base = '/mea-keijiban';
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={SITE.operator} />
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow'} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content={SITE.brand} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    {SITE.gaMeasurementId !== '' && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${SITE.gaMeasurementId}`}></script>
+        <script define:vars={{ gaId: SITE.gaMeasurementId }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', gaId);
+        </script>
+      </>
+    )}
+    {jsonLd && (
+      <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    )}
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href={`${base}/`}>💌 {SITE.name}｜{SITE.brand}</a>
+        <nav class="main-nav" aria-label="メインナビゲーション">
+          <a href={`${base}/`}>トップ</a>
+          <a href={`${base}/rules/`}>ルール・FAQ</a>
+          <a href={SITE.blogBaseUrl + '/'} target="_blank" rel="noopener">ポイ活ブログ</a>
+          <a href={SITE.hubUrl} target="_blank" rel="noopener">総合案内（ハブ）</a>
+          <a href={SITE.xAccount} target="_blank" rel="noopener">X（メア）</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="wrap">
+        <p class="pr-note">
+          ※この掲示板はPR（紹介リンク・アフィリエイト）を含みます。運営者（メア）の紹介コード・紹介リンク経由で登録し、所定の条件を満たすと、メアに各サービスの運営会社から紹介報酬が支払われる場合があります。紹介報酬が発生しても、利用する方の特典が減ったり料金が上乗せされたりすることはありません。来訪者のみなさんが投稿した紹介コードは、各投稿者の責任で掲載されています。特典額・条件は2026年11月21日時点の各サービス公式情報に基づきます。最新の条件は各公式ページでご確認ください。
+        </p>
+        <nav class="foot-nav" aria-label="フッターナビゲーション">
+          <a href={`${base}/ad-disclosure/`}>広告・紹介報酬に関する表記</a>
+          <a href={`${base}/privacy/`}>プライバシーポリシー</a>
+          <a href={`${base}/terms/`}>利用規約・免責事項</a>
+          <a href={`${base}/rules/`}>ルール・FAQ</a>
+        </nav>
+        <p class="copyright">© 2026 {SITE.brand}｜{SITE.operator}</p>
+      </div>
+    </footer>
+    <script>
+      // 紹介コードのコピーボタン（全ページ共通）
+      document.addEventListener('click', async (e) => {
+        const btn = (e.target as HTMLElement).closest('[data-copy]') as HTMLElement | null;
+        if (!btn) return;
+        const code = btn.getAttribute('data-copy') || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          const label = btn.querySelector('.copy-label');
+          if (label) {
+            label.textContent = 'コピーしました ✓';
+            setTimeout(() => { label.textContent = 'コピー'; }, 2000);
+          }
+        } catch {
+          const ta = document.createElement('textarea');
+          ta.value = code;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+      });
+    </script>
+  </body>
+</html>

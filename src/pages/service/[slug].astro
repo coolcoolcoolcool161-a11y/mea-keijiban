@@ -1,0 +1,92 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BoardApp from '../../components/BoardApp.astro';
+import { SERVICES, type Service } from '../../data/services';
+import { SITE } from '../../data/site';
+
+export function getStaticPaths() {
+  return SERVICES.map((s) => ({ params: { slug: s.slug }, props: { service: s } }));
+}
+
+interface Props {
+  service: Service;
+}
+const { service } = Astro.props;
+const base = '/mea-keijiban';
+const title = `${service.name}の紹介コード掲示板｜${SITE.name}`;
+const description = `${service.name}の紹介コード・招待コードを投稿し合える掲示板。特典は${service.benefit}。コードの入力方法や条件も紹介しています。使いたいコードを探したり、自分のコードを載せたりできます。`;
+const others = SERVICES.filter((s) => s.slug !== service.slug);
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: SITE.name, item: SITE.siteUrl + '/' },
+      { '@type': 'ListItem', position: 2, name: `${service.name}の紹介コード掲示板`, item: `${SITE.siteUrl}/service/${service.slug}/` },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: title,
+    description,
+    url: `${SITE.siteUrl}/service/${service.slug}/`,
+    inLanguage: 'ja',
+  },
+];
+---
+
+<BaseLayout title={title} description={description} canonicalPath={`/service/${service.slug}/`} jsonLd={jsonLd}>
+  <div class="wrap">
+    <p class="breadcrumb">
+      <a href={`${base}/`}>{SITE.name}</a> ＞ {service.name}の紹介コード掲示板
+    </p>
+
+    <h1>{service.name}の紹介コード掲示板 💌</h1>
+
+    {service.intro.map((p) => <p>{p}</p>)}
+
+    <section class="panel">
+      <h2>{service.name}の特典とメアの紹介コード 🎁</h2>
+      <p class="benefit" style="font-weight:700;color:var(--pink-dark)">登録する方の特典：{service.benefit}</p>
+      <div class="code-row">
+        <code>{service.operatorCode}</code>
+        <button class="copy-btn" type="button" data-copy={service.operatorCode}>
+          <span class="copy-label">コピー</span>
+        </button>
+      </div>
+      <div class="card-links">
+        {service.operatorUrl && (
+          <a class="register-btn" href={service.operatorUrl} target="_blank" rel="noopener sponsored">{service.name}に登録する</a>
+        )}
+        <a href={`${SITE.blogBaseUrl}/articles/${service.blogSlug}/`} target="_blank" rel="noopener">ブログのくわしい紹介を見る →</a>
+      </div>
+      <p class="section-note">上のコードは運営者（メア）の紹介コードです。無言利用OK♪ 下の掲示板では、みんなが投稿したコードも探せます。</p>
+    </section>
+
+    <section>
+      <h2>{service.name}のコードの使い方 📝</h2>
+      <ol class="steps">
+        {service.howTo.map((step) => <li>{step}</li>)}
+      </ol>
+      {service.notes.map((note) => <p class="section-note">※{note}</p>)}
+    </section>
+
+    <BoardApp fixedService={service.slug} />
+
+    <section>
+      <h2>ほかのサービスの掲示板 🎀</h2>
+      <div class="card-grid">
+        {others.map((s) => (
+          <article class="service-card">
+            <h3><a href={`${base}/service/${s.slug}/`}>{s.name}の紹介コード掲示板</a></h3>
+            <p class="benefit">特典：{s.benefit}</p>
+            <p class="desc">{s.blurb}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <p class="article-meta">最終更新日：{SITE.dateModified}</p>
+  </div>
+</BaseLayout>

@@ -1,0 +1,446 @@
+---
+// 掲示板の動的部分（投稿フォーム＋投稿一覧＋通報）。
+// 投稿データは Supabase（Postgres＋REST API）から取得・登録する。
+// Supabase 未設定（src/data/supabase.ts が空）の間は「公開準備中」表示になる。
+import { SERVICES } from '../data/services';
+import { boardConfigured } from '../data/supabase';
+
+interface Props {
+  fixedService?: string;
+}
+const { fixedService } = Astro.props;
+const fixed = fixedService ? SERVICES.find((s) => s.slug === fixedService) : undefined;
+const base = '/mea-keijiban';
+---
+
+{!boardConfigured ? (
+  <section class="panel">
+    <h2>掲示板は公開準備中です 🛠️</h2>
+    <p>
+      投稿機能の準備が整い次第、ここで紹介コードの投稿・閲覧ができるようになります。
+      各サービスの紹介とコードの入力方法は、このページと各サービスのページで先に紹介しています。
+    </p>
+  </section>
+) : (
+  <div class="board-app" data-fixed-service={fixedService ?? ''}>
+    <section class="panel form-panel" id="board-form">
+      <h2>{fixed ? `${fixed.name}のコードを投稿する` : '紹介コードを投稿する'} ✏️</h2>
+      <p class="form-error" id="form-error" hidden></p>
+      <p class="form-ok" id="form-ok" hidden>投稿しました♪ 一覧に表示されています。</p>
+      <form id="post-form" novalidate>
+        {fixed ? (
+          <input type="hidden" name="service" value={fixed.slug} />
+        ) : (
+          <div class="field">
+            <label for="f-service">サービス <span class="req">必須</span></label>
+            <select id="f-service" name="service" required>
+              <option value="">選んでください</option>
+              {SERVICES.map((s) => <option value={s.slug}>{s.name}</option>)}
+            </select>
+          </div>
+        )}
+        <div class="field">
+          <label for="f-name">表示名（任意）</label>
+          <input id="f-name" name="nickname" type="text" maxlength="30" placeholder="未入力の場合は「某関西人」" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="f-code">紹介コード <span class="req">必須</span></label>
+          <input id="f-code" name="code" type="text" maxlength="64" placeholder="例：ABC123" autocomplete="off" required />
+        </div>
+        <div class="field">
+          <label for="f-comment">一言コメント（任意）</label>
+          <textarea id="f-comment" name="comment" rows="3" maxlength="200" placeholder="特典の感想など（URL・メールアドレス・電話番号は書けません）"></textarea>
+          <p class="char-count"><span id="comment-count">0</span> / 200</p>
+        </div>
+        <div class="hp-field" aria-hidden="true">
+          <label>この欄は入力しないでください<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+        <button type="submit" class="submit-btn" id="post-submit">投稿する</button>
+        <p class="form-note">
+          投稿はすぐに公開されます。URL・メールアドレス・電話番号を含む投稿、同じコードの10分以内の再投稿は自動でブロックされます。
+          くわしくは<a href={`${base}/rules/`}>ルール・FAQ</a>を見てね。
+        </p>
+      </form>
+    </section>
+
+    <section class="list-section">
+      <h2>{fixed ? `${fixed.name}の投稿一覧（新しい順）` : '投稿一覧（新しい順）'} ✨</h2>
+      <form id="search-form" class="search-form">
+        <input id="search-q" type="search" placeholder="コード・コメント・表示名で検索" autocomplete="off" />
+        <button type="submit">検索</button>
+      </form>
+      <p class="section-note" id="search-state" hidden>
+        「<span id="search-word"></span>」の検索結果を表示中。
+        <button type="button" class="report-btn" id="search-clear">検索をクリア</button>
+      </p>
+      <div class="post-list" id="post-list">
+        <p class="empty" id="list-loading">読み込み中…</p>
+      </div>
+      <button type="button" class="more-btn" id="more-btn" hidden>もっと見る</button>
+    </section>
+
+    <dialog class="report-dialog" id="report-dialog">
+      <form id="report-form" novalidate>
+        <h3>この投稿を通報する</h3>
+        <p class="form-error" id="report-error" hidden></p>
+        <input type="hidden" name="post_id" id="report-post-id" />
+        <div class="field">
+          <label for="r-reason">理由 <span class="req">必須</span></label>
+          <select id="r-reason" name="reason" required>
+            <option value="">選んでください</option>
+            <option value="spam">スパム・宣伝</option>
+            <option value="false_info">うその情報・使えないコード</option>
+            <option value="personal_info">個人情報が含まれている</option>
+            <option value="abuse">誹謗中傷・不快な内容</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="r-detail">詳しい内容（任意）</label>
+          <textarea id="r-detail" name="detail" rows="3" maxlength="500"></textarea>
+        </div>
+        <button type="submit" class="submit-btn" id="report-submit">通報する</button>
+        <button type="button" class="more-btn" id="report-cancel">キャンセル</button>
+        <p class="form-note">削除の依頼もこちらから受け付けています。運営が確認して対応します。</p>
+      </form>
+    </dialog>
+  </div>
+)}
+
+<style>
+  .search-form { display: flex; gap: 8px; margin: 12px 0 16px; }
+  .search-form input {
+    flex: 1; min-width: 0; padding: 10px 12px; font-size: 1rem;
+    border: 1px solid var(--line); border-radius: 999px; background: #fff;
+    font-family: inherit;
+  }
+  .search-form button {
+    padding: 10px 18px; border: none; border-radius: 999px;
+    background: var(--board); color: #fff; font-weight: 700; cursor: pointer;
+    font-family: inherit;
+  }
+</style>
+
+<script>
+  import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../data/supabase';
+  import { SERVICES } from '../data/services';
+  import { validatePostInput, validateReportInput, LIMITS } from '../lib/validate.js';
+
+  const PAGE_SIZE = 20;
+  const SERVICE_NAMES: Record<string, string> = Object.fromEntries(SERVICES.map((s) => [s.slug, s.name]));
+  const SLUGS = SERVICES.map((s) => s.slug);
+  const BASE = '/mea-keijiban';
+
+  const root = document.querySelector('.board-app') as HTMLElement | null;
+  if (root && SUPABASE_URL && SUPABASE_ANON_KEY) {
+    const fixedService = root.dataset.fixedService || '';
+    const listEl = document.getElementById('post-list') as HTMLElement;
+    const moreBtn = document.getElementById('more-btn') as HTMLButtonElement;
+    const headers = {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+    };
+    const dateFmt = new Intl.DateTimeFormat('ja-JP', {
+      timeZone: 'Asia/Tokyo', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit',
+    });
+
+    let offset = 0;
+    let searchQuery = '';
+
+    function apiUrl(path: string) {
+      return `${SUPABASE_URL}/rest/v1/${path}`;
+    }
+
+    function postCard(post: any): HTMLElement {
+      const card = document.createElement('article');
+      card.className = 'post-card';
+
+      const head = document.createElement('div');
+      head.className = 'post-head';
+      const badge = document.createElement('a');
+      badge.className = 'service-badge';
+      badge.href = `${BASE}/service/${post.service}/`;
+      badge.textContent = SERVICE_NAMES[post.service] ?? post.service;
+      const name = document.createElement('span');
+      name.className = 'post-name';
+      name.textContent = post.nickname || '某関西人';
+      const time = document.createElement('time');
+      time.className = 'post-time';
+      time.dateTime = post.created_at;
+      time.textContent = dateFmt.format(new Date(post.created_at));
+      head.append(badge, name, time);
+      card.appendChild(head);
+
+      const codeRow = document.createElement('div');
+      codeRow.className = 'code-row';
+      const code = document.createElement('code');
+      code.textContent = post.code;
+      const copyBtn = document.createElement('button');
+      copyBtn.type = 'button';
+      copyBtn.className = 'copy-btn';
+      copyBtn.setAttribute('data-copy', post.code);
+      const label = document.createElement('span');
+      label.className = 'copy-label';
+      label.textContent = 'コピー';
+      copyBtn.appendChild(label);
+      codeRow.append(code, copyBtn);
+      card.appendChild(codeRow);
+
+      if (post.comment) {
+        const comment = document.createElement('p');
+        comment.className = 'post-comment';
+        comment.textContent = post.comment;
+        card.appendChild(comment);
+      }
+
+      const actions = document.createElement('div');
+      actions.className = 'post-actions';
+      const reportBtn = document.createElement('button');
+      reportBtn.type = 'button';
+      reportBtn.className = 'report-btn';
+      reportBtn.textContent = '通報する';
+      reportBtn.addEventListener('click', () => openReport(post.id));
+      actions.appendChild(reportBtn);
+      card.appendChild(actions);
+
+      return card;
+    }
+
+    function buildQuery(): string {
+      const params = new URLSearchParams();
+      params.set('select', 'id,service,code,nickname,comment,created_at');
+      params.set('status', 'eq.published');
+      params.set('order', 'created_at.desc');
+      params.set('limit', String(PAGE_SIZE));
+      params.set('offset', String(offset));
+      if (fixedService) params.set('service', `eq.${fixedService}`);
+      if (searchQuery) {
+        const q = searchQuery.replace(/[%_*,()]/g, ' ').trim();
+        if (q) params.set('or', `(code.ilike.*${q}*,comment.ilike.*${q}*,nickname.ilike.*${q}*)`);
+      }
+      return `posts?${params.toString()}`;
+    }
+
+    async function loadPosts(reset: boolean) {
+      if (reset) {
+        offset = 0;
+        listEl.replaceChildren();
+        const loading = document.createElement('p');
+        loading.className = 'empty';
+        loading.textContent = '読み込み中…';
+        listEl.appendChild(loading);
+      }
+      moreBtn.disabled = true;
+      try {
+        const res = await fetch(apiUrl(buildQuery()), { headers });
+        if (!res.ok) throw new Error('load failed');
+        const posts = await res.json();
+        if (reset) listEl.replaceChildren();
+        if (posts.length === 0 && offset === 0) {
+          const empty = document.createElement('p');
+          empty.className = 'empty';
+          empty.textContent = searchQuery
+            ? '見つかりませんでした。別の言葉で検索してみてね。'
+            : 'まだ投稿がありません。最初の投稿をしてみてね♪';
+          listEl.appendChild(empty);
+        }
+        for (const post of posts) listEl.appendChild(postCard(post));
+        offset += posts.length;
+        moreBtn.hidden = posts.length < PAGE_SIZE;
+      } catch {
+        if (offset === 0) {
+          listEl.replaceChildren();
+          const err = document.createElement('p');
+          err.className = 'empty';
+          err.textContent = '読み込みに失敗しました。時間をおいてページを開き直してみてください。';
+          listEl.appendChild(err);
+        }
+        moreBtn.hidden = true;
+      } finally {
+        moreBtn.disabled = false;
+      }
+    }
+
+    moreBtn.addEventListener('click', () => loadPosts(false));
+
+    // --- 検索 ---
+    const searchForm = document.getElementById('search-form') as HTMLFormElement;
+    const searchState = document.getElementById('search-state') as HTMLElement;
+    const searchWord = document.getElementById('search-word') as HTMLElement;
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = (document.getElementById('search-q') as HTMLInputElement).value.trim();
+      searchQuery = q;
+      searchState.hidden = !q;
+      searchWord.textContent = q;
+      loadPosts(true);
+    });
+    document.getElementById('search-clear')?.addEventListener('click', () => {
+      searchQuery = '';
+      (document.getElementById('search-q') as HTMLInputElement).value = '';
+      searchState.hidden = true;
+      loadPosts(true);
+    });
+
+    // --- コメント文字数 ---
+    const commentInput = document.getElementById('f-comment') as HTMLTextAreaElement | null;
+    const commentCount = document.getElementById('comment-count');
+    commentInput?.addEventListener('input', () => {
+      if (commentCount) commentCount.textContent = String(commentInput.value.length);
+    });
+
+    // --- 投稿 ---
+    const form = document.getElementById('post-form') as HTMLFormElement;
+    const formError = document.getElementById('form-error') as HTMLElement;
+    const formOk = document.getElementById('form-ok') as HTMLElement;
+    const submitBtn = document.getElementById('post-submit') as HTMLButtonElement;
+
+    function showError(msg: string) {
+      formError.textContent = msg;
+      formError.hidden = false;
+      formOk.hidden = true;
+    }
+
+    function friendlyError(err: any): string {
+      const text = `${err?.message ?? ''} ${err?.details ?? ''} ${err?.hint ?? ''}`;
+      if (text.includes('duplicate_code_window')) {
+        return '同じコードは10分間再投稿できません。時間をおいてお試しください。';
+      }
+      if (err?.code === '23514' || text.includes('check constraint')) {
+        return '入力内容に使えない内容が含まれています。URL・メールアドレス・電話番号は投稿できません。';
+      }
+      return '送信できませんでした。時間をおいてもう一度お試しください。';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      formError.hidden = true;
+      formOk.hidden = true;
+
+      const fd = new FormData(form);
+      const honeypot = (fd.get('website') as string) || '';
+      if (honeypot !== '') return; // ハニーポット（bot判定）
+      const serviceSlug = fixedService || (fd.get('service') as string) || '';
+      const result = validatePostInput(
+        {
+          serviceSlug,
+          displayName: (fd.get('nickname') as string) || '',
+          inviteCode: (fd.get('code') as string) || '',
+          comment: (fd.get('comment') as string) || '',
+        },
+        SLUGS,
+      );
+      if ('error' in result) {
+        showError(result.error);
+        return;
+      }
+      const { input } = result;
+
+      // 連続投稿ブロック（1分）
+      const last = Number(localStorage.getItem('keijiban-last-post') || 0);
+      if (Date.now() - last < LIMITS.minPostIntervalSec * 1000) {
+        showError('連続投稿は1分に1件までです。少し時間をおいてお試しください。');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      try {
+        // 同一コードの10分以内再投稿チェック（DBトリガーでも最終防衛）
+        const since = new Date(Date.now() - LIMITS.duplicateCodeWindowMin * 60 * 1000).toISOString();
+        const dupParams = new URLSearchParams({
+          select: 'id',
+          code: `eq.${input.inviteCode}`,
+          created_at: `gte.${since}`,
+          limit: '1',
+        });
+        const dupRes = await fetch(apiUrl(`posts?${dupParams.toString()}`), { headers });
+        if (dupRes.ok) {
+          const dups = await dupRes.json();
+          if (dups.length > 0) {
+            showError('同じコードは10分間再投稿できません。時間をおいてお試しください。');
+            return;
+          }
+        }
+
+        const res = await fetch(apiUrl('posts'), {
+          method: 'POST',
+          headers: { ...headers, Prefer: 'return=representation' },
+          body: JSON.stringify({
+            service: input.serviceSlug,
+            code: input.inviteCode,
+            nickname: input.displayName || '某関西人',
+            comment: input.comment || null,
+          }),
+        });
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          throw Object.assign(new Error(errBody.message || 'insert failed'), errBody);
+        }
+        localStorage.setItem('keijiban-last-post', String(Date.now()));
+        formOk.hidden = false;
+        form.reset();
+        if (commentCount) commentCount.textContent = '0';
+        searchQuery = '';
+        searchState.hidden = true;
+        await loadPosts(true);
+      } catch (err) {
+        showError(friendlyError(err));
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    // --- 通報 ---
+    const dialog = document.getElementById('report-dialog') as HTMLDialogElement;
+    const reportForm = document.getElementById('report-form') as HTMLFormElement;
+    const reportError = document.getElementById('report-error') as HTMLElement;
+    const reportPostId = document.getElementById('report-post-id') as HTMLInputElement;
+
+    function openReport(postId: number) {
+      reportPostId.value = String(postId);
+      reportError.hidden = true;
+      reportForm.reset();
+      reportPostId.value = String(postId);
+      dialog.showModal();
+    }
+    document.getElementById('report-cancel')?.addEventListener('click', () => dialog.close());
+
+    reportForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(reportForm);
+      const result = validateReportInput({
+        reason: (fd.get('reason') as string) || '',
+        detail: (fd.get('detail') as string) || '',
+      });
+      if ('error' in result) {
+        reportError.textContent = result.error;
+        reportError.hidden = false;
+        return;
+      }
+      const submit = document.getElementById('report-submit') as HTMLButtonElement;
+      submit.disabled = true;
+      try {
+        const res = await fetch(apiUrl('reports'), {
+          method: 'POST',
+          headers: { ...headers, Prefer: 'return=minimal' },
+          body: JSON.stringify({
+            post_id: Number(reportPostId.value),
+            reason: result.input.reason,
+            detail: result.input.detail || null,
+          }),
+        });
+        if (!res.ok) throw new Error('report failed');
+        dialog.close();
+        alert('通報を受け付けました。運営が確認します。ありがとうございました。');
+      } catch {
+        reportError.textContent = '送信できませんでした。時間をおいてもう一度お試しください。';
+        reportError.hidden = false;
+      } finally {
+        submit.disabled = false;
+      }
+    });
+
+    loadPosts(true);
+  }
+</script>
