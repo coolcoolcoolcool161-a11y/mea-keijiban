@@ -2,7 +2,7 @@
 // 掲示板の動的部分（投稿フォーム＋投稿一覧＋通報）。
 // 投稿データは Supabase（Postgres＋REST API）から取得・登録する。
 // Supabase 未設定（src/data/supabase.ts が空）の間は「公開準備中」表示になる。
-import { SERVICES } from '../data/services';
+import { SERVICES, OTHER_SLUG, OTHER_NAME } from '../data/services';
 import { boardConfigured } from '../data/supabase';
 
 interface Props {
@@ -36,16 +36,22 @@ const base = '/mea-keijiban';
             <select id="f-service" name="service" required>
               <option value="">選んでください</option>
               {SERVICES.map((s) => <option value={s.slug}>{s.name}</option>)}
+              <option value={OTHER_SLUG}>{OTHER_NAME}（上記以外のサービス）</option>
             </select>
+          </div>
+          <div class="field" id="other-name-field" hidden>
+            <label for="f-other-name">サービス名 <span class="req">必須</span></label>
+            <input id="f-other-name" name="service_name" type="text" maxlength="50" placeholder="例：○○ポイント" autocomplete="off" />
           </div>
         )}
         <div class="field">
           <label for="f-name">表示名（任意）</label>
-          <input id="f-name" name="nickname" type="text" maxlength="30" placeholder="未入力の場合は「某関西人」" autocomplete="off" />
+          <input id="f-name" name="nickname" type="text" maxlength="30" placeholder="未入力の場合は「無名」" autocomplete="off" />
         </div>
         <div class="field">
           <label for="f-code">紹介コード <span class="req">必須</span></label>
-          <input id="f-code" name="code" type="text" maxlength="64" placeholder="例：ABC123" autocomplete="off" required />
+          <input id="f-code" name="code" type="text" maxlength="200" placeholder="例：ABC123" autocomplete="off" required />
+          <p class="section-note" id="link-code-note" hidden={!fixed?.codeIsUrl}>このサービスは紹介リンク型です。コードの代わりに、紹介リンク（URL）をそのまま貼ってください。</p>
         </div>
         <div class="field">
           <label for="f-comment">一言コメント（任意）</label>
@@ -57,7 +63,7 @@ const base = '/mea-keijiban';
         </div>
         <button type="submit" class="submit-btn" id="post-submit">投稿する</button>
         <p class="form-note">
-          投稿はすぐに公開されます。URL・メールアドレス・電話番号を含む投稿、同じコードの10分以内の再投稿は自動でブロックされます。
+          投稿はすぐに公開されます。URL・メールアドレス・電話番号を含む投稿（リンク型サービスのコード欄は除く）、同じコードの10分以内の再投稿は自動でブロックされます。
           くわしくは<a href={`${base}/rules/`}>ルール・FAQ</a>を見てね。
         </p>
       </form>
@@ -123,12 +129,15 @@ const base = '/mea-keijiban';
 
 <script>
   import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../data/supabase';
-  import { SERVICES } from '../data/services';
+  import { SERVICES, OTHER_SLUG, OTHER_NAME, LINK_CODE_SLUGS } from '../data/services';
   import { validatePostInput, validateReportInput, LIMITS } from '../lib/validate.js';
 
   const PAGE_SIZE = 20;
-  const SERVICE_NAMES: Record<string, string> = Object.fromEntries(SERVICES.map((s) => [s.slug, s.name]));
-  const SLUGS = SERVICES.map((s) => s.slug);
+  const SERVICE_NAMES: Record<string, string> = {
+    ...Object.fromEntries(SERVICES.map((s) => [s.slug, s.name])),
+    [OTHER_SLUG]: OTHER_NAME,
+  };
+  const VALID_SLUGS = [...SERVICES.map((s) => s.slug), OTHER_SLUG];
   const BASE = '/mea-keijiban';
 
   const root = document.querySelector('.board-app') as HTMLElement | null;
@@ -147,6 +156,8 @@ const base = '/mea-keijiban';
 
     let offset = 0;
     let searchQuery = '';
+    // service_name カラムは移行SQLの実行後に有効になる。それまではカラムなしで取得する。
+    let hasServiceName = true;
 
     function apiUrl(path: string) {
       return `${SUPABASE_URL}/rest/v1/${path}`;
@@ -158,13 +169,22 @@ const base = '/mea-keijiban';
 
       const head = document.createElement('div');
       head.className = 'post-head';
-      const badge = document.createElement('a');
-      badge.className = 'service-badge';
-      badge.href = `${BASE}/service/${post.service}/`;
-      badge.textContent = SERVICE_NAMES[post.service] ?? post.service;
+      let badge: HTMLElement;
+      if (post.service === OTHER_SLUG) {
+        // 「その他」は専用ページがないためリンクにせず、自由記入のサービス名を表示する
+        badge = document.createElement('span');
+        badge.className = 'service-badge';
+        badge.textContent = post.service_name || OTHER_NAME;
+      } else {
+        const link = document.createElement('a');
+        link.className = 'service-badge';
+        link.href = `${BASE}/service/${post.service}/`;
+        link.textContent = SERVICE_NAMES[post.service] ?? post.service;
+        badge = link;
+      }
       const name = document.createElement('span');
       name.className = 'post-name';
-      name.textContent = post.nickname || '某関西人';
+      name.textContent = post.nickname || '無名';
       const time = document.createElement('time');
       time.className = 'post-time';
       time.dateTime = post.created_at;
@@ -209,7 +229,12 @@ const base = '/mea-keijiban';
 
     function buildQuery(): string {
       const params = new URLSearchParams();
-      params.set('select', 'id,service,code,nickname,comment,created_at');
+      params.set(
+        'select',
+        hasServiceName
+          ? 'id,service,code,nickname,comment,created_at,service_name'
+          : 'id,service,code,nickname,comment,created_at',
+      );
       params.set('status', 'eq.published');
       params.set('order', 'created_at.desc');
       params.set('limit', String(PAGE_SIZE));
@@ -233,7 +258,12 @@ const base = '/mea-keijiban';
       }
       moreBtn.disabled = true;
       try {
-        const res = await fetch(apiUrl(buildQuery()), { headers });
+        let res = await fetch(apiUrl(buildQuery()), { headers });
+        if (!res.ok && hasServiceName) {
+          // service_name カラムがまだ無い（移行SQL未実行）場合は、カラムなしで取り直す
+          hasServiceName = false;
+          res = await fetch(apiUrl(buildQuery()), { headers });
+        }
         if (!res.ok) throw new Error('load failed');
         const posts = await res.json();
         if (reset) listEl.replaceChildren();
@@ -283,6 +313,24 @@ const base = '/mea-keijiban';
       loadPosts(true);
     });
 
+    // --- サービス選択に応じたフォームの切り替え（「その他」のサービス名欄／リンク型の注意書き） ---
+    const serviceSelect = document.getElementById('f-service') as HTMLSelectElement | null;
+    const otherNameField = document.getElementById('other-name-field');
+    const linkCodeNote = document.getElementById('link-code-note');
+    const codeInput = document.getElementById('f-code') as HTMLInputElement | null;
+    function syncServiceFields() {
+      const slug = fixedService || serviceSelect?.value || '';
+      if (otherNameField) otherNameField.hidden = slug !== OTHER_SLUG;
+      if (linkCodeNote) linkCodeNote.hidden = !LINK_CODE_SLUGS.includes(slug);
+      if (codeInput) {
+        codeInput.placeholder = LINK_CODE_SLUGS.includes(slug)
+          ? '紹介リンク（URL）をそのまま貼ってください'
+          : '例：ABC123';
+      }
+    }
+    serviceSelect?.addEventListener('change', syncServiceFields);
+    syncServiceFields();
+
     // --- コメント文字数 ---
     const commentInput = document.getElementById('f-comment') as HTMLTextAreaElement | null;
     const commentCount = document.getElementById('comment-count');
@@ -328,8 +376,9 @@ const base = '/mea-keijiban';
           displayName: (fd.get('nickname') as string) || '',
           inviteCode: (fd.get('code') as string) || '',
           comment: (fd.get('comment') as string) || '',
+          serviceName: (fd.get('service_name') as string) || '',
         },
-        SLUGS,
+        VALID_SLUGS,
       );
       if ('error' in result) {
         showError(result.error);
@@ -363,15 +412,19 @@ const base = '/mea-keijiban';
           }
         }
 
+        const payload: Record<string, unknown> = {
+          service: input.serviceSlug,
+          code: input.inviteCode,
+          nickname: input.displayName || '無名',
+          comment: input.comment || null,
+        };
+        if (input.serviceSlug === OTHER_SLUG && hasServiceName) {
+          payload.service_name = input.serviceName;
+        }
         const res = await fetch(apiUrl('posts'), {
           method: 'POST',
           headers: { ...headers, Prefer: 'return=representation' },
-          body: JSON.stringify({
-            service: input.serviceSlug,
-            code: input.inviteCode,
-            nickname: input.displayName || '某関西人',
-            comment: input.comment || null,
-          }),
+          body: JSON.stringify(payload),
         });
         if (!res.ok) {
           const errBody = await res.json().catch(() => ({}));
@@ -380,6 +433,7 @@ const base = '/mea-keijiban';
         localStorage.setItem('keijiban-last-post', String(Date.now()));
         formOk.hidden = false;
         form.reset();
+        syncServiceFields();
         if (commentCount) commentCount.textContent = '0';
         searchQuery = '';
         searchState.hidden = true;

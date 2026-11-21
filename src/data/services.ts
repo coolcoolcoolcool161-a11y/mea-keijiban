@@ -1,7 +1,9 @@
-// 掲示板対象14サービスのマスタデータ。
+// 掲示板対象19サービスのマスタデータ（＋投稿フォームの「その他」カテゴリ）。
 // コード・URL・特典・条件は台帳（referral-ledger.md）と MEMORY.md §3・§4 が正。
 // 変更する前に必ず prepost_referral_check の手順で照合すること。
 // operatorUrl が null のサービスは紹介URLが存在しない（勝手に作らない）。
+// codeIsUrl が true のサービス（楽天モバイル）は、紹介コードの代わりに
+// 紹介リンクそのものをコード欄に入れる「リンク型」。コード欄のURLはこの型に限り許可される。
 
 export interface Service {
   slug: string;
@@ -10,6 +12,7 @@ export interface Service {
   benefit: string;
   operatorCode: string;
   operatorUrl: string | null;
+  codeIsUrl?: boolean;
   blurb: string;
   intro: string[];
   howTo: string[];
@@ -286,6 +289,108 @@ export const SERVICES: Service[] = [
     ],
     notes: ['コードの入力は登録から24時間以内が条件です。'],
   },
+  {
+    slug: 'rakuten-mobile',
+    name: '楽天モバイル',
+    blogSlug: 'rakuten-mobile',
+    benefit: '最大13,000ポイント',
+    operatorCode: 'https://r10.to/hgZk3d',
+    operatorUrl: 'https://r10.to/hgZk3d',
+    codeIsUrl: true,
+    blurb: '紹介リンク型のキャンペーン。初めての申込で楽天ポイントがもらえます。',
+    intro: [
+      '楽天モバイルは、紹介リンクから初めて申し込むと楽天ポイントがもらえるキャンペーンを実施中です。他社から電話番号そのまま乗り換え（MNP）なら13,000ポイント、乗り換え以外のお申し込みでも12,000ポイントがもらえます。',
+      '楽天モバイルは招待コードではなく紹介リンク型のサービスです。このページでは、みんなの紹介リンクを投稿・検索できます（この掲示板では、楽天モバイルに限りコード欄に紹介リンクを貼れます）。',
+    ],
+    howTo: [
+      '紹介リンクから楽天IDでログインする（持っていない方は新規登録でもOK）',
+      'ログイン後、翌々月末日までに楽天モバイルのプランを申し込む',
+      'プランの利用を開始する',
+      'Rakuten Linkアプリから発信通話をする',
+    ],
+    notes: [
+      'ポイントがもらえるのは、初めてお申し込みされる方限定のキャンペーンです。',
+      '紹介を受けた方の契約情報が紹介者に伝わることはありません。',
+    ],
+  },
+  {
+    slug: 'mercari',
+    name: 'メルカリ',
+    blogSlug: 'mercari',
+    benefit: '500円分',
+    operatorCode: 'HKRDNM',
+    operatorUrl: 'https://link.jp.mercari.com/70tO/lpthbfqe',
+    blurb: 'フリマアプリの定番。新規登録で500円分お得にお買い物できます。',
+    intro: [
+      'メルカリは、不用品を売ったりお得に買ったりできるフリマアプリです。招待コードを使って新規登録すると、500円分お得にお買い物できます。',
+      'このページではメルカリの招待コードを投稿・検索できます。',
+    ],
+    howTo: [
+      'メルカリのアプリをインストールする',
+      '新規登録のときに招待コードを入力する',
+      '500円分お得にお買い物できる特典を受け取る',
+    ],
+    notes: ['招待コードは新規登録のときに入力してください。'],
+  },
+  {
+    slug: 'paypay',
+    name: 'PayPay',
+    blogSlug: 'paypay',
+    benefit: '300pt',
+    operatorCode: '02-49XLFP8',
+    operatorUrl: 'https://s.paypay.ne.jp/5HWsZW',
+    blurb: 'スマホ決済の定番。紹介コード入力＋1,000円以上の決済で300pt。',
+    intro: [
+      'PayPayは、スマホでかんたんに支払える決済アプリです。紹介コードを入力して条件を達成すると、300ptがもらえます。',
+      'このページではPayPayの紹介コードを投稿・検索できます。',
+    ],
+    howTo: [
+      'PayPayアプリをダウンロードして新規登録する',
+      '新規登録画面または友だち紹介特典画面で紹介コードを入力する',
+      '対象の支払い方法で1,000円以上の支払いをする',
+      '後日、300ptが付与されます',
+    ],
+    notes: ['コード入力と1,000円以上の決済は、どちらも新規登録から60日以内が条件です（期限は登録日時の59日23時間59分後まで）。期限を過ぎると特典はもらえません。'],
+  },
+  {
+    slug: 'airwallet',
+    name: 'エアウォレット',
+    blogSlug: 'airwallet',
+    benefit: 'Pontaポイント300ポイント',
+    operatorCode: 'qpgtg29',
+    operatorUrl:
+      'https://point.recruit.co.jp/recruitid/doc/campaign/aw/airwallet202610_invitation/W7nd8/?vos=wercdSGCbnrlink20250121621',
+    blurb: '銀行口座間の送金が手数料無料でできるアプリ。新規登録でPontaポイント300ポイント。',
+    intro: [
+      'エアウォレットは、銀行口座間の送金が手数料無料でできる便利なアプリです。紹介リンクから新規登録すると、Pontaポイント300ポイントがもらえます。',
+      '紹介はリンク型が基本ですが、招待コードもあります。このページではエアウォレットの招待コードを投稿・検索できます。',
+    ],
+    howTo: [
+      '紹介リンクからエアウォレットに新規登録する',
+      'Pontaポイント300ポイントを受け取る',
+    ],
+    notes: ['登録は無料で始められます。難しい操作は必要ありません。'],
+  },
+  {
+    slug: 'smbc-olive',
+    name: 'SMBC Olive',
+    blogSlug: 'olive',
+    benefit: 'Vポイント1,000円相当',
+    operatorCode: 'FF89103-3439377',
+    operatorUrl: 'https://www.smbc.co.jp/kojin/redirect/referral04/index.html',
+    blurb: '三井住友銀行のOliveアカウント紹介プログラム。条件達成でVポイント1,000円相当。',
+    intro: [
+      'SMBC Oliveは、三井住友銀行の金融サービス「Oliveアカウント」の紹介プログラムです。紹介コードでエントリーして条件を達成すると、Vポイント1,000円相当がもらえます。',
+      'このページではSMBC Oliveの紹介コードを投稿・検索できます。',
+    ],
+    howTo: [
+      'エントリーフォームで紹介コードを入力してエントリーする',
+      'Oliveアカウントを契約する',
+      '契約日の翌月末時点で、残高が10,000円以上になるよう入金する',
+      'Vポイント1,000円相当を受け取る',
+    ],
+    notes: ['特典はVポイント1,000円相当のみです。条件は「エントリー＋Oliveアカウント契約＋契約日の翌月末時点で残高10,000円以上」です。'],
+  },
 ];
 
 export const SERVICE_MAP: Record<string, Service> = Object.fromEntries(
@@ -293,3 +398,11 @@ export const SERVICE_MAP: Record<string, Service> = Object.fromEntries(
 );
 
 export const SERVICE_SLUGS = SERVICES.map((s) => s.slug);
+
+// 「その他」カテゴリ：19サービス以外の招待コードを、サービス名の自由記入つきで投稿できる。
+// 専用ページや運営者コードは持たないため SERVICES には含めず、スラッグだけを別に定義する。
+export const OTHER_SLUG = 'other';
+export const OTHER_NAME = 'その他';
+
+// リンク型サービス（コード欄にURLを貼る）のスラッグ一覧。
+export const LINK_CODE_SLUGS = SERVICES.filter((s) => s.codeIsUrl).map((s) => s.slug);
