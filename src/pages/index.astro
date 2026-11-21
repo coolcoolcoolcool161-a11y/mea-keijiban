@@ -51,7 +51,10 @@ const jsonLd = {
         {SERVICES.map((s) => (
           <article class="service-card">
             <h3><a href={`${base}/service/${s.slug}/`}>{s.name}の紹介コード掲示板</a></h3>
-            <p class="benefit">特典：{s.benefit}</p>
+            <div class="benefit-badge">
+              <span class="benefit-label">登録者特典</span>
+              <span class="benefit-value">{s.benefit}</span>
+            </div>
             <p class="desc">{s.blurb}</p>
             <div class="code-row">
               <code>{s.operatorCode}</code>

@@ -48,7 +48,10 @@ const jsonLd = [
 
     <section class="panel">
       <h2>{service.name}の特典とメアの紹介コード 🎁</h2>
-      <p class="benefit" style="font-weight:700;color:var(--pink-dark)">登録する方の特典：{service.benefit}</p>
+      <div class="benefit-badge">
+        <span class="benefit-label">登録者特典</span>
+        <span class="benefit-value">{service.benefit}</span>
+      </div>
       <div class="code-row">
         <code>{service.operatorCode}</code>
         <button class="copy-btn" type="button" data-copy={service.operatorCode}>
@@ -80,7 +83,10 @@ const jsonLd = [
         {others.map((s) => (
           <article class="service-card">
             <h3><a href={`${base}/service/${s.slug}/`}>{s.name}の紹介コード掲示板</a></h3>
-            <p class="benefit">特典：{s.benefit}</p>
+            <div class="benefit-badge">
+              <span class="benefit-label">登録者特典</span>
+              <span class="benefit-value">{s.benefit}</span>
+            </div>
             <p class="desc">{s.blurb}</p>
           </article>
         ))}

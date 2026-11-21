@@ -259,7 +259,10 @@ h2 { font-size: var(--text-h2); line-height: var(--leading-heading); }
 h3 { font-size: var(--text-h3); }
 :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 .service-card { border: var(--border-card); box-shadow: var(--shadow-card); }
-.service-card .benefit { background: var(--color-benefit-bg); border-radius: var(--radius-sm); padding: 10px 14px; font-size: var(--text-benefit); line-height: 1.3; color: var(--color-benefit-text); }
+.benefit-badge { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; background: var(--color-benefit-bg); border-radius: var(--radius-sm); padding: 10px 14px; }
+.benefit-badge .benefit-label { font-size: var(--text-xs); color: var(--color-text-muted); white-space: nowrap; }
+.benefit-badge .benefit-value { font-size: var(--text-benefit); font-weight: 700; color: var(--color-benefit-text); line-height: 1.3; }
+.benefit-badge .benefit-sub { font-size: var(--text-sm); color: var(--color-text-muted); }
 .code-row code { font-family: var(--font-code); }
 .copy-btn { min-height: 48px; display: inline-flex; align-items: center; background: var(--color-primary-soft); color: var(--color-primary-strong); border: 1px dashed var(--color-primary); font-weight: 700; padding: 10px 20px; transition: background-color .18s; }
 .copy-btn:hover { background: #ffe4ef; }
