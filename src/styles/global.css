@@ -1,19 +1,75 @@
 /* みんなの紹介コード掲示板 — ピンク基調・モバイルファースト（他サイトと共通トーン） */
 :root {
-  --pink: #e75480;
-  --pink-light: #fff0f5;
-  --pink-dark: #c2185b;
-  --ink: #333;
-  --muted: #666;
-  --line: #f0c6d4;
-  --bg: #fffafc;
-  --card: #fff;
-  --radius: 14px;
-  --board: #7c5cbf;
-  --ok-bg: #e8f7ee;
-  --ok-text: #1d7a43;
-  --err-bg: #fdecec;
-  --err-text: #b3261e;
+  /* === デザインシステム（DESIGN_SYSTEM.md） === */
+  --color-primary: #e75480;
+  --color-primary-strong: #c2185b;
+  --color-primary-dark: #9c1448;
+  --color-primary-soft: #fff0f5;
+  --color-primary-line: #f0c6d4;
+  --color-bg: #fffafc;
+  --color-surface: #ffffff;
+  --color-text: #333333;
+  --color-text-muted: #666666;
+  --color-benefit-bg: #fff0f5;
+  --color-benefit-text: #c2185b;
+  --color-notice-bg: #fff8e1;
+  --color-notice-line: #ffe082;
+  --color-success-bg: #e8f7ee;
+  --color-success-text: #1d7a43;
+  --color-error-bg: #fdecec;
+  --color-error-text: #b3261e;
+  --color-board: #7c5cbf;
+  --color-focus: #c2185b;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic", YuGothic, sans-serif;
+  --font-code: "SF Mono", Menlo, Consolas, monospace;
+  --text-xs: 0.8rem;
+  --text-sm: 0.9rem;
+  --text-base: 1rem;
+  --text-lead: 1.05rem;
+  --text-h3: 1.15rem;
+  --text-h2: 1.3rem;
+  --text-h1: 1.6rem;
+  --text-benefit: 1.5rem;
+  --leading-body: 1.75;
+  --leading-heading: 1.4;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --section-gap: 40px;
+  --page-padding: 16px;
+  --content-max: 960px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-pill: 999px;
+  --border-card: 1px solid var(--color-primary-line);
+  --shadow-card: 0 1px 3px rgba(194, 24, 91, 0.08);
+  --shadow-raised: 0 4px 14px rgba(194, 24, 91, 0.14);
+  /* === 旧変数（互換エイリアス） === */
+  --pink: var(--color-primary);
+  --pink-light: var(--color-primary-soft);
+  --pink-dark: var(--color-primary-strong);
+  --ink: var(--color-text);
+  --muted: var(--color-text-muted);
+  --line: var(--color-primary-line);
+  --bg: var(--color-bg);
+  --card: var(--color-surface);
+  --radius: var(--radius-md);
+  --text: var(--color-text);
+  --text-muted: var(--color-text-muted);
+}
+@media (min-width: 768px) {
+  :root { --text-h1: 1.9rem; --text-h2: 1.45rem; }
+}
+:root {
+  --board: var(--color-board);
+  --ok-bg: var(--color-success-bg);
+  --ok-text: var(--color-success-text);
+  --err-bg: var(--color-error-bg);
+  --err-text: var(--color-error-text);
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -195,3 +251,27 @@ p { margin: 0.6em 0; }
 .legal h2 { font-size: 1.15rem; }
 .legal ol, .legal ul { padding-left: 1.4em; }
 .article-meta { font-size: 0.85rem; color: var(--muted); }
+
+/* === リニューアル：デザインシステム適用（2026-11-21） === */
+body { font-family: var(--font-sans); }
+h1 { font-size: var(--text-h1); line-height: var(--leading-heading); }
+h2 { font-size: var(--text-h2); line-height: var(--leading-heading); }
+h3 { font-size: var(--text-h3); }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.service-card { border: var(--border-card); box-shadow: var(--shadow-card); }
+.service-card .benefit { background: var(--color-benefit-bg); border-radius: var(--radius-sm); padding: 10px 14px; font-size: var(--text-benefit); line-height: 1.3; color: var(--color-benefit-text); }
+.code-row code { font-family: var(--font-code); }
+.copy-btn { min-height: 48px; display: inline-flex; align-items: center; background: var(--color-primary-soft); color: var(--color-primary-strong); border: 1px dashed var(--color-primary); font-weight: 700; padding: 10px 20px; transition: background-color .18s; }
+.copy-btn:hover { background: #ffe4ef; }
+.register-btn { background: var(--color-primary-strong); min-height: 48px; display: flex; align-items: center; justify-content: center; padding: 12px 24px; font-size: 1rem; transition: background-color .18s; }
+.register-btn:hover { background: var(--color-primary-dark); }
+.steps li::before { background: var(--color-primary-strong); }
+.submit-btn { min-height: 48px; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.empty-state { text-align: center; border: 1px dashed var(--color-primary-line); border-radius: var(--radius-md); padding: 24px 16px; margin: 16px 0; background: #fff; }
+.mea-speech { display: flex; gap: 12px; align-items: flex-start; margin: 16px 0; }
+.mea-speech img { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; flex-shrink: 0; }
+.mea-speech .speech-body { background: #fff; border: 1px solid var(--color-primary-line); border-radius: var(--radius-md); padding: 10px 14px; font-size: var(--text-sm); }
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
