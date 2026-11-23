@@ -4,7 +4,7 @@
 旧計画（Cloudflare Workers＋D1）は2026-11-21のユーザー指示で廃止し、他の8サイトと同じ
 **GitHub Pages（Astro 静的サイト）＋ Supabase 無料プラン（Postgres＋REST API）** で構築する。
 
-- 公開URL：https://coolcoolcoolcool161-a11y.github.io/mea-keijiban/
+- 公開URL：https://mea-poikatsu.github.io/mea-keijiban/
 - 仕様：`~/workspace/board-build-decisions-2026-11-21.md` の決定12件を踏襲
   （対象14サービス／即時公開＋自動ブロック／GA4共通／画像なし／コメント機能なし／
   投稿者の編集・削除なし＝削除依頼は通報経由／サービス別一覧のみ）

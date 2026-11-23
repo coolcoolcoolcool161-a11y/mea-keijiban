@@ -7,7 +7,7 @@ import sitemap from '@astrojs/sitemap';
 const TOP_LASTMOD = '2026-11-21';
 
 export default defineConfig({
-  site: 'https://coolcoolcoolcool161-a11y.github.io',
+  site: 'https://mea-poikatsu.github.io',
   base: '/mea-keijiban',
   trailingSlash: 'always',
   integrations: [
