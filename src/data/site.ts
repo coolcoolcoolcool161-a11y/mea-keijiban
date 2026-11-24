@@ -1,6 +1,6 @@
 // サイト共通の設定。値はすべて公開情報のみ（秘密情報は入れない）。
 export const SITE = {
-  name: 'みんなの紹介コード掲示板',
+  name: 'ポイ活ひろば',
   brand: 'メアのポイ活メディア',
   operator: 'メア',
   siteUrl: 'https://mea-poikatsu.github.io/mea-keijiban',

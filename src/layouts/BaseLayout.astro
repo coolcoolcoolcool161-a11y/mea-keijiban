@@ -15,8 +15,8 @@ const {
   title,
   description = SITE.description,
   canonicalPath = '/',
-  // 画像はバイナリのためコネクタ経由でpushできない。ポイ活ブログ側の公開画像を参照する。
-  ogImage = 'https://mea-poikatsu.github.io/mea-poikatsu-blog/images/hero.jpg',
+  // OGP画像は自サイトの /images/ogp.jpg（2026-11-24 フェーズ3で自サイト配置に変更）。
+  ogImage = '/images/ogp.jpg',
   jsonLd,
   noindex = false,
 } = Astro.props;
@@ -82,7 +82,7 @@ const organizationLd = {
         <nav class="main-nav" aria-label="メインナビゲーション">
           <a href={`${base}/`}>トップ</a>
           <a href={`${base}/rules/`}>ルール・FAQ</a>
-          <a href={SITE.blogBaseUrl + '/'} target="_blank" rel="noopener">ポイ活ブログ</a>
+          <a href={SITE.blogBaseUrl + '/'} target="_blank" rel="noopener">ポイ活レビュー帖</a>
           <a href={SITE.hubUrl} target="_blank" rel="noopener">総合案内（ハブ）</a>
           <a href={SITE.xAccount} target="_blank" rel="noopener">X（メア）</a>
         </nav>
