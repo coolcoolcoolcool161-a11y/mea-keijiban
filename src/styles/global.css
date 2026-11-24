@@ -477,3 +477,27 @@ tbody tr:hover { background: #fff0f5; }
    本文 = LINE Seed JP（Webフォント）/ 見出し = 丸ゴシック系（S07のみ角ゴシック） */
 h1, h2, h3, .brand { font-family: var(--font-heading); }
 h1, .brand { font-weight: 900; }
+
+/* === S09再構築：棚型デザイン（2026-11-25 デザイン決定「棚型＋デザイン強化版」） ===
+   棚の看板（グラデーションの吊り看板風ピル）＋棚板（プランク）で「棚」を表現する。
+   既存クラスの変更はせず、追加のみ。 */
+.shelf { margin-top: 30px; }
+.shelf-title { border-bottom: none; padding-bottom: 0; background: none; margin-bottom: 6px; }
+.shelf-sign {
+  display: inline-block;
+  background: var(--gradient-brand);
+  color: #ffffff;
+  padding: 8px 20px;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-btn);
+  font-size: 1.02rem;
+  letter-spacing: 0.02em;
+}
+.shelf-grid { margin: 14px 0 0; }
+.shelf-plank {
+  height: 14px;
+  margin: 4px -4px 0;
+  border-radius: 7px;
+  background: linear-gradient(180deg, #fbd9e6 0%, #f2a9c4 55%, #e75480 135%);
+  box-shadow: 0 6px 12px rgba(194, 24, 91, 0.18);
+}

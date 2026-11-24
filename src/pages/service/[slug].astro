@@ -58,13 +58,13 @@ const jsonLd = [
       </div>
       <div class="code-row">
         <code>{service.operatorCode}</code>
-        <button class="copy-btn" type="button" data-copy={service.operatorCode}>
+        <button class="copy-btn" type="button" data-copy={service.operatorCode} data-service={service.slug}>
           <span class="copy-label">コピー</span>
         </button>
       </div>
       <div class="card-links">
         {service.operatorUrl && (
-          <a class="register-btn" href={service.operatorUrl} target="_blank" rel="noopener sponsored">{service.name}に登録する</a>
+          <a class="register-btn" href={service.operatorUrl} target="_blank" rel="noopener sponsored" data-ref-service={service.slug} data-ref-placement="service-panel" data-service={service.slug} data-position="service-panel">{service.name}に登録する</a>
         )}
         <a href={`${SITE.blogBaseUrl}/articles/${service.blogSlug}/`} target="_blank" rel="noopener">ブログのくわしい紹介を見る →</a>
       </div>
