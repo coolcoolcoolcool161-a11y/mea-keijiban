@@ -42,6 +42,10 @@ const jsonLd = [
       <a href={`${base}/`}>{SITE.name}</a> ＞ {service.name}の紹介コード掲示板
     </p>
 
+    <div class="pr-box">
+      ※このページはPRを含みます。運営者（メア）の紹介コード・リンク経由で登録し条件を満たすと、メアに紹介報酬が支払われる場合があります。あなたの特典が減ることはありません。くわしくは<a href={`${base}/ad-disclosure/`}>広告・紹介報酬に関する表記</a>を見てね。
+    </div>
+
     <h1>{service.name}の紹介コード掲示板 💌</h1>
 
     {service.intro.map((p) => <p>{p}</p>)}
