@@ -125,6 +125,10 @@ const base = '/mea-keijiban';
     background: var(--board); color: #fff; font-weight: 700; cursor: pointer;
     font-family: inherit;
   }
+  /* ダークテーマ（段4 S09 段階1-5）。色の指定のみ。検索ボタンは --color-board の
+     トークン追随を止めて #7c5cbf に固定する（白文字が読めなくなるため） */
+  html[data-theme="dark"] .search-form input { background: var(--color-surface-raised); }
+  html[data-theme="dark"] .search-form button { background: #7c5cbf; }
 </style>
 
 <script>

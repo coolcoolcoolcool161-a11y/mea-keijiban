@@ -48,9 +48,10 @@ const organizationLd = {
     <meta name="author" content={SITE.operator} />
     <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow'} />
     <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/mea-keijiban/favicon.svg" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ja_JP" />
-    <meta property="og:site_name" content={SITE.brand} />
+    <meta property="og:site_name" content={SITE.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
@@ -77,6 +78,7 @@ const organizationLd = {
       <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;700;800&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet" />
+    <script is:inline>(function(){try{var t=localStorage.getItem('poigame-theme');if(t!=='dark'&&t!=='light'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
   </head>
   <body>
     <header class="site-header">
@@ -88,6 +90,7 @@ const organizationLd = {
           <a href={SITE.blogBaseUrl + '/'} target="_blank" rel="noopener">ポイ活レビュー帖</a>
           <a href={SITE.hubUrl} target="_blank" rel="noopener">総合案内（ハブ）</a>
           <a href={SITE.xAccount} target="_blank" rel="noopener">X（メア）</a>
+          <button type="button" class="theme-toggle" id="theme-toggle" aria-label="表示テーマを切り替える"><span class="theme-toggle-icon" aria-hidden="true">🌙</span>テーマ</button>
         </nav>
       </div>
     </header>
@@ -173,6 +176,25 @@ const organizationLd = {
           wrap.appendChild(t);
         }
       });
+    </script>
+    <script is:inline>
+      // テーマ切替（PARTS_SPEC §18 テーマ基盤）。キーは全サイト共通の poigame-theme。
+      (function () {
+        var btn = document.getElementById('theme-toggle');
+        if (!btn) return;
+        var icon = btn.querySelector('.theme-toggle-icon');
+        function draw() {
+          var cur = document.documentElement.getAttribute('data-theme') || 'light';
+          if (icon) icon.textContent = cur === 'dark' ? '☀️' : '🌙';
+        }
+        btn.addEventListener('click', function () {
+          var cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', cur);
+          try { localStorage.setItem('poigame-theme', cur); } catch (e) {}
+          draw();
+        });
+        draw();
+      })();
     </script>
   </body>
 </html>

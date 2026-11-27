@@ -24,13 +24,13 @@ export const SERVICES: Service[] = [
     slug: 'freecash',
     name: 'Freecash',
     blogSlug: 'freecash',
-    benefit: '初回DLで1,430円分',
+    benefit: '毎日のルーレットで無条件ボーナス',
     operatorCode: '3BQLXB',
     operatorUrl: 'https://freecash.com/r/3BQLXB',
     blurb: 'ゲームを遊ぶだけで報酬が貯まる、海外発の人気ポイ活サービス。',
     intro: [
       'Freecashは、紹介リンクから登録して対象のゲームをプレイするだけで報酬がもらえる、海外発の人気ポイ活サービスです。スマホで簡単に始められ、ゲームを楽しみながらポイントを貯められます。',
-      'このページでは、Freecashの紹介コードを投稿・検索できます。招待コードを入力して初回DLすると1,430円分がもらえます。毎日のルーレットやログインでも報酬がもらえます。',
+      'このページでは、Freecashの紹介コードを投稿・検索できます。毎日のルーレットで無条件ボーナスがもらえたり、ゲームにログインするだけでも報酬がもらえます。',
     ],
     howTo: [
       '紹介リンクからFreecashに新規登録する',
@@ -217,13 +217,13 @@ export const SERVICES: Service[] = [
     slug: 'butamaru',
     name: 'ぶたまる',
     blogSlug: 'butamaru',
-    benefit: '500pt（50円分）',
+    benefit: '500pt',
     operatorCode: 'JUTN9FH',
     operatorUrl: 'https://app.moneypig.gy/friend_code?friend_code=JUTN9FH',
     blurb: 'ぶたの風船をタップして短いCMを見るだけでポイントが貯まるアプリ。',
     intro: [
       'ぶたまる（マネーピッグ）は、ぶたの風船をタップして短いCMを見るだけでポイントが貯まるアプリです。歩かなくてもOKなので、スキマ時間に気軽にポイ活できます。',
-      '招待コードの入力などで500pt（50円分）がもらえます。このページではぶたまるの招待コードを投稿・検索できます。',
+      '招待コードの入力などで500ptがもらえます。このページではぶたまるの招待コードを投稿・検索できます。',
     ],
     howTo: [
       '紹介リンクからぶたまるに登録する',
@@ -377,21 +377,21 @@ export const SERVICES: Service[] = [
     slug: 'smbc-olive',
     name: 'SMBC Olive',
     blogSlug: 'olive',
-    benefit: 'Vポイント1,000円相当',
+    benefit: 'Vポイント1,000pt',
     operatorCode: 'FF89103-3439377',
     operatorUrl: 'https://www.smbc.co.jp/kojin/redirect/referral04/index.html',
-    blurb: '三井住友銀行のOliveアカウント紹介プログラム。条件達成でVポイント1,000円相当。',
+    blurb: '三井住友銀行のOliveアカウント紹介プログラム。条件達成でVポイント1,000pt。',
     intro: [
-      'SMBC Oliveは、三井住友銀行の金融サービス「Oliveアカウント」の紹介プログラムです。紹介コードでエントリーして条件を達成すると、Vポイント1,000円相当がもらえます。',
+      'SMBC Oliveは、三井住友銀行の金融サービス「Oliveアカウント」の紹介プログラムです。紹介コードでエントリーして条件を達成すると、Vポイント1,000ptがもらえます。',
       'このページではSMBC Oliveの紹介コードを投稿・検索できます。',
     ],
     howTo: [
       'エントリーフォームで紹介コードを入力してエントリーする',
       'Oliveアカウントを契約する',
       '契約日の翌月末時点で、残高が10,000円以上になるよう入金する',
-      'Vポイント1,000円相当を受け取る',
+      'Vポイント1,000ptを受け取る',
     ],
-    notes: ['特典はVポイント1,000円相当のみです。条件は「エントリー＋Oliveアカウント契約＋契約日の翌月末時点で残高10,000円以上」です。'],
+    notes: ['特典はVポイント1,000ptのみです。条件は「エントリー＋Oliveアカウント契約＋契約日の翌月末時点で残高10,000円以上」です。'],
   },
 ];
 
